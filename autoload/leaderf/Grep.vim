@@ -2,9 +2,6 @@ if leaderf#versionCheck() == 0
     finish
 endif
 
-exec g:Lf_py "import vim, sys, os.path"
-exec g:Lf_py "cwd = vim.eval('expand(\"<sfile>:p:h\")')"
-exec g:Lf_py "sys.path.insert(0, os.path.join(cwd, 'python'))"
 exec g:Lf_py "from grepExpl import *"
 
 function! leaderf#Grep#Maps()

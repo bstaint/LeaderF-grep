@@ -43,6 +43,7 @@ class GrepExplorer(Explorer):
             return self._content
         
         cmd = self._buildCmd(*_args)
+        print(cmd)
         executor = AsyncExecutor()
         self._executor.append(executor)
         self._content = executor.execute(cmd, encoding=lfEval("&encoding"))        
