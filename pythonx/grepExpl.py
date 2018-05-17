@@ -19,39 +19,38 @@ class GrepExplorer(Explorer):
         self._executor = []
         self._content = []
         self._args = ('', '')
-        
+
     def _buildCmd(self, dir, text):
         wildignore = lfEval("g:Lf_WildIgnore")
-        args = ['--no-messages', '--vimgrep', '--fixed-strings']        
+        args = ['--no-messages', '--vimgrep', '--fixed-strings']
         # '*.{h,cs,c}'
-        ignore = (i[2:]  if i.startswith('*.') else i for i in wildignore["file"])         
+        ignore = (i[2:]  if i.startswith('*.') else i for i in wildignore["file"])
         if os.name == 'nt': # https://github.com/BurntSushi/ripgrep/issues/500
             args.append('-g "!*.{%s}"' % ','.join(ignore))
         else:
             args.append("-g '!*.{%s}' % ",','.join(ignore))
-            
+
         return 'rg %s "%s" "%s"' % (' '.join(args), text.replace('"', r'\"'), dir)
-        
+
     def getContent(self, *args, **kwargs):
         pattern = args[0] if len(args) > 0 else ''
         if not pattern:
             return self._content
-        
+
         _args = (os.getcwd(), pattern)
         if self._args == _args and time.time() - self._time < float(\
                 lfEval("g:Lf_IndexTimeLimit")) and self._content:
             return self._content
-        
+
         cmd = self._buildCmd(*_args)
-        print(cmd)
         executor = AsyncExecutor()
         self._executor.append(executor)
-        self._content = executor.execute(cmd, encoding=lfEval("&encoding"))        
+        self._content = executor.execute(cmd, encoding=lfEval("&encoding"))
         self._args = _args
         self._time = time.time()
-        
+
         return self._content
-        
+
     def setContent(self, content):
         self._content = content
 
@@ -60,7 +59,7 @@ class GrepExplorer(Explorer):
 
     def getStlCurDir(self):
         return escQuote(lfEncode(os.getcwd()))
-        
+
     def cleanup(self):
         for exe in self._executor:
             exe.killProcess()
@@ -85,7 +84,7 @@ class GrepExplManager(Manager):
     def _acceptSelection(self, *args, **kwargs):
         if len(args) == 0:
             return
-        
+
         drive,line = os.path.splitdrive(args[0])
         file,row,column,_ = line.split(':', 3)
         file = os.path.join(drive, file)
@@ -123,8 +122,8 @@ class GrepExplManager(Manager):
         help.append('" q : quit')
         help.append('" <F1> : toggle this help')
         help.append('" ---------------------------------------------------------')
-        return help      
-        
+        return help
+
     def _afterEnter(self):
         super(GrepExplManager, self)._afterEnter()
 
